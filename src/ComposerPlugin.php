@@ -87,7 +87,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
 	/**
      *
      */
-	public static function removeGitDirectories() {
+	public function removeGitDirectories() {
             if(!$this->isActive()) {
                 $this->io->write("removeGitDirectories: not active");
             }
