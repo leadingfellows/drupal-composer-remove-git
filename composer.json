@@ -1,0 +1,50 @@
+{
+    "name": "leadingfellows/drupal-composer-remove-git",
+    "description": "Scripts used with Drupal and composer",
+    "type": "composer-plugin",
+    "keywords": ["drupal"],
+    "authors": [
+        {
+            "name": "leadingfellows",
+            "email": "contact@leadingfellows.com",
+            "homepage": "https://www.leadingfellows.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "composer-plugin-api": "^1.1",
+        "composer/installers": "^1.2",
+        "drupal-composer/drupal-scaffold": "^2.2",
+        "symfony/filesystem": "^3.3",
+        "webmozart/path-util": "^2.3"
+    },
+    "require-dev": {
+        "composer/composer": "~1.0",
+        "squizlabs/php_codesniffer": "~2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Leadingfellows\\DrupalComposerHelper\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        },
+        "class": "Leadingfellows\\DrupalComposerHelper\\ComposerPlugin"
+    },
+    "suggest": {
+    },
+    "scripts": {
+        "test": [
+            "composer validate --no-interaction",
+            "phpcs --standard=psr2 src/"
+        ]
+    }
+}
+
