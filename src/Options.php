@@ -20,6 +20,7 @@ class Options
         $extra = $this->composer->getPackage()->getExtra() + ['drupal-composer-remove-git' => []];
         $extra['drupal-composer-remove-git'] += [
             'web-prefix' => 'web',
+            'active' => 'true'
         ];
         return $key ? $extra['drupal-composer-remove-git'][$key] : $extra['drupal-composer-remove-git'];
     }
