@@ -1,0 +1,1 @@
+# drupal-composer-remove-git
