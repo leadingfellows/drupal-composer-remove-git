@@ -58,7 +58,6 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-          //  PackageEvents::POST_PACKAGE_INSTALL => ['XXX', -100],
             ScriptEvents::POST_INSTALL_CMD => [
                 ['removeGitDirectories', 100],
             ],
