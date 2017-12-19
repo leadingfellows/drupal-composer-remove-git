@@ -108,9 +108,9 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
                     }
                     continue;
                 }
-                $Directory = new RecursiveDirectoryIterator($dirToScan);
-                $Iterator = new RecursiveIteratorIterator($Directory);
-                $Regex = new RegexIterator($Iterator, '/^\.git$/i', RecursiveRegexIterator::GET_MATCH);	
+                $Directory = new \RecursiveDirectoryIterator($dirToScan);
+                $Iterator = new \RecursiveIteratorIterator($Directory);
+                $Regex = new \RegexIterator($Iterator, '/^\.git$/i', \RecursiveRegexIterator::GET_MATCH);	
                 foreach($objects as $name => $object){
                     $this->io->write("found: ".$name." ".print_r($object,TRUE));
                     //static::deleteRecursive(
