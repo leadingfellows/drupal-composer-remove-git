@@ -57,9 +57,6 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        $activated = $this->options->get('active');
-        $this->io->write("active: ".$activated);
-        if(!$activated) return [];
         return [
           //  PackageEvents::POST_PACKAGE_INSTALL => ['XXX', -100],
             ScriptEvents::POST_INSTALL_CMD => [
@@ -69,6 +66,11 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
                 ['removeGitDirectories', 100],
             ],
         ];
+    }
+
+    public function isActive() {
+        $activated = $this->options->get('active');
+        return ($activated)? true:false;
     }
 
 	public function getDrupalRoot() {
@@ -87,6 +89,9 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
      *
      */
 	public static function removeGitDirectories() {
+            if(!$this->isActive()) {
+                $this->io->write("removeGitDirectories: not active");
+            }
             $this->io->write("removeGitDirectories: ".$activated);
 			$drupal_root = $this->getDrupalRoot();
 			foreach (static::$dirToRemoveGitDirectories as $subdirectory_to_scan) {
