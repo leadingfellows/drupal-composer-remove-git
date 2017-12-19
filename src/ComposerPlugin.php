@@ -49,7 +49,9 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $this->composer = $composer;
 		$this->io = $io;
         $this->options = new Options($composer);
-        $this->io->write("activate composer plugin drupal-remove-git-directories");
+        if ($this->io->isVeryVerbose() || $this->io->isDebug()) {
+            $this->io->write("activate composer plugin drupal-remove-git-directories");
+        }
     }
 
     /**
@@ -89,18 +91,28 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
      */
 	public function removeGitDirectories() {
             if(!$this->isActive()) {
-                $this->io->write("removeGitDirectories: not active");
+                if ($this->io->isVerbose() || $this->io->isDebug()) {
+                    $this->io->write("removeGitDirectories: not active");
+                }
+                return;
             }
-            $this->io->write("removeGitDirectories: ".$activated);
-			$drupal_root = $this->getDrupalRoot();
+            $drupal_root = $this->getDrupalRoot();
+            if ($this->io->isVerbose() || $this->io->isDebug()) {
+                $this->io->write("removeGitDirectories processing Drupal root: ".$drupal_root);
+            }
 			foreach (static::$dirToRemoveGitDirectories as $subdirectory_to_scan) {
                 $dirToScan = $drupal_root."/".$subdirectory_to_scan;
-                if(!file_exists($dirToScan) || !is_dir($dirToScan)) continue;
+                if(!file_exists($dirToScan) || !is_dir($dirToScan)) {
+                    if ($this->io->isVerbose() || $this->io->isDebug()) {
+                        $this->io->write("removeGitDirectories skip directory: ".$dirToScan);
+                    }
+                    continue;
+                }
                 $Directory = new RecursiveDirectoryIterator($dirToScan);
                 $Iterator = new RecursiveIteratorIterator($Directory);
                 $Regex = new RegexIterator($Iterator, '/^\.git$/i', RecursiveRegexIterator::GET_MATCH);	
                 foreach($objects as $name => $object){
-                    echo "found: ".$name." ".print_r($object,TRUE)."\n";
+                    $this->io->write("found: ".$name." ".print_r($object,TRUE));
                     //static::deleteRecursive(
                 }
 			}
