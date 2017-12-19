@@ -9,11 +9,6 @@ use Composer\IO\IOInterface;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Script\ScriptEvents;
 
-// use DrupalFinder\DrupalFinder;
-use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\PathUtil\Path;
-
-
 
 class ComposerPlugin implements PluginInterface, EventSubscriberInterface
 {
@@ -74,49 +69,90 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         return ($activated)? true:false;
     }
 
-	public function getDrupalRoot() {
-		$fs = new Filesystem();
+    public function processDrupalDirectory() {
+        $activated = $this->options->get('directories-drupal');
+        return ($activated)? true:false;
+    }
+
+    public function processVendorDirectory() {
+        $activated = $this->options->get('directories-vendor');
+        return ($activated)? true:false;
+    }
+
+	protected function getDrupalRoot() {
         $composer_root = getcwd();
 		// with options
 		$drupal_root = $composer_root . '/' . $this->options->get('web-prefix');
-    	// with DrupalFinder
+    	// otherwise with DrupalFinder
 		// $drupalFinder = new DrupalFinder();
 		// $drupalFinder->locateRoot($composer_root);
 		// $drupal_root = $drupalFinder->getDrupalRoot();
 		return $drupal_root;
 	}
+
+    protected function getVendorDirectory() {
+        $composer_root = getcwd();
+        return $composer_root . '/vendor';
+    }
 	
+    
 	/**
      *
      */
 	public function removeGitDirectories() {
             if(!$this->isActive()) {
                 if ($this->io->isVerbose() || $this->io->isDebug()) {
-                    $this->io->write("removeGitDirectories: not active");
+                    $this->io->write("drupal-composer-remove-git: not active");
                 }
                 return;
             }
-            $drupal_root = $this->getDrupalRoot();
-            if ($this->io->isVerbose() || $this->io->isDebug()) {
-                $this->io->write("removeGitDirectories processing Drupal root: ".$drupal_root);
-            }
-			foreach (static::$dirToRemoveGitDirectories as $subdirectory_to_scan) {
-                $dirToScan = $drupal_root."/".$subdirectory_to_scan;
-                if(!file_exists($dirToScan) || !is_dir($dirToScan)) {
-                    if ($this->io->isVerbose() || $this->io->isDebug()) {
-                        $this->io->write("removeGitDirectories skip directory: ".$dirToScan);
+            if($this->processDrupalDirectory()) {
+                $drupal_root = $this->getDrupalRoot();
+    			foreach (static::$dirToRemoveGitDirectories as $subdirectory_to_scan) {
+                    $dirToScan = $drupal_roo . DIRECTORY_SEPARATOR . $subdirectory_to_scan;
+                    if(!file_exists($dirToScan) || !is_dir($dirToScan)) {
+                        continue;
                     }
-                    continue;
-                }
-                $Directory = new \RecursiveDirectoryIterator($dirToScan);
-                $Iterator = new \RecursiveIteratorIterator($Directory);
-                $objects = new \RegexIterator($Iterator, '/^\.git$/i', \RecursiveRegexIterator::GET_MATCH);	
-                foreach($objects as $name => $object){
-                    $this->io->write("found: ".$name." ".print_r($object,TRUE));
-                    //static::deleteRecursive(
-                }
-			}
+                    $this->removeGitDirectoriesRecursive($dirToScan);
+    			}
+            }
+            if($this->processVendorDirectory()) {
+                $vendor_dir = $this->getVendorDirectory();
+                $this->removeGitDirectoriesRecursive($vendor_dir);
+            }
 	}
+
+    protected static function findGitDirectories($parent_dir, &$result) {
+        if(!is_dir($parent_dir)) return;
+        else if ($handle = opendir($parent_dir)) 
+        {
+            while (false !== ($file = readdir($handle)))
+            {
+                if(in_array($file, array('.', '..'))) continue;
+                else {
+                    $path = $parent_dir . DIRECTORY_SEPARATOR . $file;
+                    if(!is_dir($path))  continue;
+                    if($file == ".git") $result []= $path;
+                    else static::findGitDirectories($path, $result);
+                }
+            }
+            closedir($handle);
+        }
+    }
+
+    protected function removeGitDirectoriesRecursive($dirToScan) {
+        if ($this->io->isVerbose() || $this->io->isDebug()) {
+                $this->io->write("scan directory for '.git': ". $dirToScan);
+        }
+        $git_directories = array();
+        static::findGitDirectories($dirToScan, $git_directories);
+        foreach($git_directories as $path){
+                if ($this->io->isVerbose() || $this->io->isDebug()) {
+                    $this->io->write("delete directory ". $path);
+                }
+                static::deleteRecursive($path);
+        }
+    }
 
 	/**
      * Helper method to remove directories and the files they contain.
@@ -138,7 +174,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             if ($entry == '.' || $entry == '..') {
                 continue;
             }
-            $entry_path = $path . '/' . $entry;
+            $entry_path = $path . DIRECTORY_SEPARATOR . $entry;
             $success = static::deleteRecursive($entry_path) && $success;
         }
         $dir->close();
