@@ -109,7 +109,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             if($this->processDrupalDirectory()) {
                 $drupal_root = $this->getDrupalRoot();
     			foreach (static::$dirToRemoveGitDirectories as $subdirectory_to_scan) {
-                    $dirToScan = $drupal_roo . DIRECTORY_SEPARATOR . $subdirectory_to_scan;
+                    $dirToScan = $drupal_root . DIRECTORY_SEPARATOR . $subdirectory_to_scan;
                     if(!file_exists($dirToScan) || !is_dir($dirToScan)) {
                         continue;
                     }
