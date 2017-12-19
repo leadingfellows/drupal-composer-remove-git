@@ -2,20 +2,20 @@
 
 namespace Leadingfellows\DrupalComposerHelper;
 
-
 use Composer\Composer;
+
 class Options
 {
 
 
-	private $composer;
+    private $composer;
 
-	public function __construct(Composer $composer)
+    public function __construct(Composer $composer)
     {
         $this->composer = $composer;
     }
 
-	public function get($key = '')
+    public function get($key = '')
     {
         $extra = $this->composer->getPackage()->getExtra() + ['drupal-composer-remove-git' => []];
         $extra['drupal-composer-remove-git'] += [
