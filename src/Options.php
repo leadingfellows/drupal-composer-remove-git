@@ -19,8 +19,8 @@ class Options
     {
         $extra = $this->composer->getPackage()->getExtra() + ['drupal-composer-remove-git' => []];
         $extra['drupal-composer-remove-git'] += [
-            'web-prefix' => 'web',
-            'active' => 'true',
+            'web-prefix' => '',
+            'active' => 'false',
             'directories-vendor' => 'true',
             'directories-drupal' => 'true'
         ];
